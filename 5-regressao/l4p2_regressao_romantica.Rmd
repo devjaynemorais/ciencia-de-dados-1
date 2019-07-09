@@ -156,7 +156,11 @@ tidy(bm, conf.int = TRUE, conf.level = 0.95) %>%
 
 Na amostra de dados analisada foi utilizada regressão múltipla logistica foi utilizada para analisar se a relação entre as variáveis `prob` (a probabiliade p1 acha que p2 tem de querer se encontrar novamente), `int_corr` (a correlação entre os interesses de p1 e p2), `like` (no geral, quanto p1 gostou de p2), `intel` (quão inteligente p1 achou p2), `attr` (quão atraente p1 achou p2) possuem uma associação com a a probabilidade de haver match entre dois participabntes do encontro. 
 
-Os resultados da regressão indicam que um modelo com os 5 preditores no formato $produtividade = -0,66 + 0,78*prob + 0.006*int_corr + 0.005*like + 0.006*intel + 0.005*attr$ explicam 51,55% da variância da variável de resposta (R2 = 0.5155). 
+Os resultados da regressão indicam que um modelo com os 5 preditores no formato $log(\frac{p(y)}{1-p(y)}) = -0,66 + 0,78*prob + 0.006*int_corr + 0.005*like + 0.006*intel + 0.005*attr$ explicam 51,55% da variância da variável de resposta (R2 = 0.5155). 
+
+#Como aqui y = exp(b0)*exp(b1*x1), aumentar em uma unidade x, faz com que y seja multiplicado por exp(b1), que é o estimate nessa tabela acima.
+
+#Como aqui, y = 0,0014*(1,19*prob), aumentar em uma unidade `prob`, faz com que a probabilidade de dar match seja multiplicada por 1,19.
 
 * A variável $prob$, medida como o nível de conceito da instituição tem uma relação positiva e relevante com o erro b = [0.50; 1.06], IC com 95%
 
@@ -168,7 +172,7 @@ Os resultados da regressão indicam que um modelo com os 5 preditores no formato
 
 * A variável $attr$, medida como a porcetagem de docentes colaboradores, pode possuir uma  relação negativa e pouco relevante (ou talvez nem possuir, pelo fato do intervalo de confiança incluir o 0) com o erro b = [-0.07; 0.05], IC com 95%.
 
-Após análise dos resultados obtidos para os valores das estimativas associadas a cada variável independente, implicam que o aumento de 1 unidade de $prob$ produz uma mudança de 0,78 na produtividade dos programas de pós graduação em Ciência da Computação do Brasil, enquanto que o aumento da variável $periodicosComAlunoA1$ aumenta em 0,006 na produtividade do programa e o aumento do número de $docentesColaboradores$ possui em relação negativa de -0,005 nesta. O modelo só explica aproximadamente 51% da variância do modelo, e consequentemente, é necessaŕio analisar o impacto de outras variáveis para medir a produtividade dos programas.
+Após análise dos resultados obtidos para os valores das estimativas associadas a cada variável independente, implicam que o aumento de 1 unidade de $prob$ produz uma mudança de 0,78 na produtividade dos programas de pós graduação em Ciência da Computação do Brasil, enquanto que o aumento da variável $periodicosComAlunoA1$ aumenta em 0,006 na produtividade do programa e o aumento do número de $docentesColaboradores$ possui em relação negativa de -0,005 nesta. O modelo só explica aproximadamente 51% da variância do modelo pelo MC Fadden, e consequentemente, é necessaŕio analisar o impacto de outras variáveis para medir a produtividade dos programas.
 
 Portanto, na prática, é possível observar que os de acordo com os dados disponibilizados pela CAPES, mostram que os programas de pós graduação em Ciência da Computação do Brasil mais conceitualizados aparenta ser um fator de bastante influência na produtividade dos programas, enquanto periódicos com qualis A1 com a participação de alunos também aparentam possuir impacto positivo (caso exista), porém menor que o impacto do nível de conceito do curso de pós graduação. E por fim, a participação de docentes colaboradores na pesquisa provavelmente influencia bem menos (caso influencie) na produtividade os programas.  
 
