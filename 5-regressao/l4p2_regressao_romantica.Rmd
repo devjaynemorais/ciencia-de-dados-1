@@ -176,3 +176,8 @@ Após análise dos resultados obtidos para os valores das estimativas associadas
 
 Portanto, na prática, é possível observar que os de acordo com os dados disponibilizados pela CAPES, mostram que os programas de pós graduação em Ciência da Computação do Brasil mais conceitualizados aparenta ser um fator de bastante influência na produtividade dos programas, enquanto periódicos com qualis A1 com a participação de alunos também aparentam possuir impacto positivo (caso exista), porém menor que o impacto do nível de conceito do curso de pós graduação. E por fim, a participação de docentes colaboradores na pesquisa provavelmente influencia bem menos (caso influencie) na produtividade os programas.  
 
+# Dúvidas:
+## Qual a diferença entre as tabelas com e sem exponentiate?
+## A interpretação da frase está correta?
+## O modelo deve ser reescrito no formato de expoente?
+
