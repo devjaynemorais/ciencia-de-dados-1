@@ -20,17 +20,20 @@ library(ggbeeswarm)
 library(ggridges)
 library(ggplot2)
 library(scales)
-
 library(GGally)
 library(pscl)
 library(broom)
+#install.packages("pscl")
 library(modelr) # devtools::install_github("hadley/modelr")
 
 theme_set(theme_bw())
 ```
 
+Jayne Morais
+Mestrado 2019.1 (UFCG) - FPCC2
 
 ```{r}
+
 dados = read_csv("speed-dating/speed-dating2.csv")
 
 dados = dados %>% mutate(match = ifelse(dec == "yes", 1, 0))
@@ -64,6 +67,13 @@ dados %>%
   scale_y_continuous(breaks=seq(0, 10000, by = 100)) +
   labs(x= "Quanto p1 gostou de p2 (like)",
        y = "Quantidade")
+
+dados %>%
+  mutate(like = cut(like, 5)) %>% 
+  ggplot(aes(x = like, fill = dec)) +
+  geom_bar(position = "fill") +
+  labs(x= "Quanto p1 gostou de p2 (like)",
+       y = "Quantidade")
 ``` 
 
 ```{r}
@@ -77,6 +87,14 @@ dados %>%
   scale_y_continuous(breaks=seq(0, 10000, by = 100)) +
   labs(x= "Quão inteligente p1 achou p2 (intel)",
        y = "Quantidade")
+
+
+dados %>%
+  mutate(intel = cut(intel, 5)) %>% 
+  ggplot(aes(x = intel, fill = dec)) +
+  geom_bar(position = "fill") +
+  labs(x= "Quão inteligente p1 achou p2 (intel)",
+       y = "Quantidade (%)")
 ``` 
 ```{r}
 dados %>%
@@ -89,18 +107,46 @@ dados %>%
   scale_y_continuous(breaks=seq(0, 10000, by = 100)) +
   labs(x= "Quão atraente p1 achou p2 (attr)",
        y = "Quantidade")
+
+
+dados %>%
+  mutate(attr = cut(attr, 5)) %>% 
+  ggplot(aes(x = attr, fill = dec)) +
+  geom_bar(position = "fill") +
+  labs(x= "Quão atraente p1 achou p2 (attr)",
+       y = "Quantidade (%)")
+
 ``` 
 ```{r}
+#dados %>%
+  #na.omit(samerace) %>%
+ # ggplot(aes(x = prob, fill = dec)) +
+  #geom_histogram(
+         #        breaks=seq(0, 10, by = 1)) +
+  #scale_x_continuous(breaks=seq(0, 10, by = 1)) +
+  #scale_y_continuous(breaks=seq(0, 10000, by = 100)) +
+  #labs(x= "Quão atraente p1 achou p2 (prob)",
+      # y = "Quantidade")
+
 dados %>%
   #na.omit(samerace) %>%
   ggplot(aes(x = prob)) +
   geom_histogram(color = "black",
-                 fill = "red",
+                 fill = "blue",
                  breaks=seq(0, 10, by = 1)) +
   scale_x_continuous(breaks=seq(0, 10, by = 1)) +
   scale_y_continuous(breaks=seq(0, 10000, by = 100)) +
-  labs(x= "Quão atraente p1 achou p2 (prob)",
+  labs(x= "Probabilidade de um novo encontro (prob)",
        y = "Quantidade")
+
+dados %>%
+  mutate(prob = cut(prob, 5)) %>% 
+  ggplot(aes(x = prob, fill = dec)) +
+  geom_bar(position = "fill") +
+  labs(x= "Probabilidade de um novo encontro (prob)",
+       y = "Quantidade (%)")
+
+
 ``` 
 
 ```{r}
@@ -108,12 +154,18 @@ dados %>%
   #na.omit(prob) %>%
   ggplot(aes(x = int_corr)) +
   geom_histogram(color = "black",
-                 fill = "yellow",
-                 breaks=seq(0, 10, by = 1)) +
-  scale_x_continuous(breaks=seq(0, 10, by = 1)) +
+                 fill = "yellow") +
+  #scale_x_continuous(breaks=seq(0, 10, by = 1)) +
   scale_y_continuous(breaks=seq(0, 10000, by = 100)) +
-  labs(x= "Probabilidade de um novo encontro (int_corr)",
+  labs(x= "Correlação de interesses (int_corr)",
        y = "Quantidade")
+
+dados %>%
+  mutate(prob = cut(prob, 5)) %>% 
+  ggplot(aes(x = prob, fill = dec)) +
+  geom_bar(position = "fill") +
+  labs(x= "Correlação de interesses (int_corr)",
+       y = "Quantidade (%)")
 ``` 
 
 
@@ -137,13 +189,7 @@ Para esta análise serão escolhidas as seguintes variáveis:
 `like` : no geral, quanto p1 gostou de p2?
 `intel` : quão inteligente p1 achou p2
 `attr` : quão atraente p1 achou p2
---------------------------------------------------
-`fun` : quão divertido p1 achou p2
-`shar` : quanto p1 achou que compartilha interesses e hobbies com p2
-`sinc` : quão sincero p1 achou p2
-`samerace` : p1 e p2 são da mesma raça?
-`intel` : quão inteligente p1 achou p2
-`amb` : quão ambicioso p1 achou p2  
+
 
 ```{r}
 
@@ -178,50 +224,43 @@ tidy(bm, conf.int = TRUE, conf.level = 0.95, exponentiate = TRUE) %>%
 A variável dependente no modelo é $p(x)/(1-p(x))$. Caso queiramos observar o efeito de $x$ em $p(x)$, isso é menos óbvio porque a relação entre $x$ e $p(x)$ é não linear: o efeito depende dos valores de $x$. A forma de fazer: 
 
 
-```{r}
-teste = data.frame(intel = 1:5)
-
-bm %>% 
-  augment(newdata = teste, 
-          type.predict = "response")
-
-```
-
 # Que fatores nos dados têm efeito relevante na chance do casal ter um match? Descreva se os efeitos são positivos ou negativos e sua magnitude. 
 
 
 ### Conclusão
 
-    Na amostra de dados analisada foi utilizada regressão múltipla logística foi utilizada para analisar se a relação entre as variáveis `prob` (a probabiliade p1 acha que p2 tem de querer se encontrar novamente), `int_corr` (a correlação entre os interesses de p1 e p2), `like` (no geral, quanto p1 gostou de p2), `intel` (quão inteligente p1 achou p2), `attr` (quão atraente p1 achou p2) possuem uma associação com a a probabilidade de haver match entre dois participantes do encontro. 
+  Na amostra de dados analisada foi utilizada regressão múltipla logística foi utilizada para analisar se a relação entre as variáveis `prob` (a probabiliade p1 acha que p2 tem de querer se encontrar novamente), `int_corr` (a correlação entre os interesses de p1 e p2), `like` (no geral, quanto p1 gostou de p2), `intel` (quão inteligente p1 achou p2), `attr` (quão atraente p1 achou p2) possuem uma associação com o odds de haver match entre dois participantes do encontro. 
 
-Os resultados da regressão indicam que um modelo com os 5 preditores no formato $log(\frac{p(y)}{1-p(y)}) = -0,66 + 0,78*prob + 0.006*int_corr + 0.005*like + 0.006*intel + 0.005*attr$ explicam 51,55% da variância da variável de resposta (R2 = 0.5155). 
+  Os resultados da regressão indicam que um modelo com os 5 preditores no formato $\frac{p(y)}{1-p(y)} = 0,0014 + 1,03^{int\_corr} + 1,19^{prob} + 1,91^{like} + 0,81^{intel} + 1,53^{attr}$ explicam 33,86% da variância da variável de resposta medido pelo McFadden, correspondendo a $\frac{1}{3}$. 
+  
 
-#Como aqui y = exp(b0)*exp(b1*x1), aumentar em uma unidade x, faz com que y seja multiplicado por exp(b1), que é o estimate nessa tabela acima.
+  Após análise dos resultados obtidos para os valores das estimativas associadas a cada variável independente, implicam que: 
+  
+  + Como $y = 0,0014*(1,03^{int\_corr})$, aumentar em uma unidade `int_corr`, faz com que o odds de dar match seja multiplicada por 1,19;
+    
+  + Como $y = 0,0014*(1,19^{prob})$, aumentar em uma unidade `prob`, faz com que o odds de dar match seja multiplicada por 1,03;
+    
+  + Como $y = 0,0014*(1,91^{like})$, aumentar em uma unidade `like`, faz com que o odds de dar match seja multiplicada por 1,91;
+    
+  + Como $y = 0,0014*(0,81^{intel})$, aumentar em uma unidade `intel`, faz com que o odds de dar match seja multiplicada por 0,81;
+    
+  + Como $y = 0,0014*(1,53^{attr})$, aumentar em uma unidade `attr`, faz com que o odds de dar match seja multiplicada por 1,53.
 
-#Como aqui, y = 0,0014*(1,19*prob), aumentar em uma unidade `prob`, faz com que a probabilidade de dar match seja multiplicada por 1,19.
+  **Considerações:**
+  
+  * A variável $int\_corr$, medida como a correlação entre os interesses de p1 e p2, possui uma relação muito pequena e positiva (ou talvez nem possuir, pelo fato do intervalo de confiança incluir o 0), porém não se pode confirmar ou descartar um efeito importante sobre esta última, com o erro b = [0,81; 1.31], IC com 95%;
+    
+  * A variável $prob$, medida como a probabiliade p1 acha que p2 tem de querer se encontrar novamente, tem uma relação positiva e relevante com o erro b = [1,15; 1,24], IC com 95%;
+    
+  * A variável $like$, medida como quanto p1 gostou de p2, possui uma relação muito relevante e positivo com o erro b = [1,78; 2,06], IC com 95%;
+    
+  * A variável $intel$, medida como quão inteligente p1 achou p2, possui uma relação negativa e pouco relevante com o erro b = [0,76; 0,86], IC com 95%. 
+    
+  * A variável $attr$, medida como quão atraente p1 achou p2, possui uma relação positiva e relevante com o erro b = [1,45; 1,61], IC com 95%.
 
-* A variável $prob$, medida como o nível de conceito da instituição tem uma relação positiva e relevante com o erro b = [0.50; 1.06], IC com 95%
+  O modelo só explica aproximadamente \frac{1}{3}$ (33,86%) da variância do modelo pelo MC Fadden, e consequentemente, é importante analisar o impacto de outras variáveis para medir o odds de dar match entre os participantes. 
 
-* A variável $int_corr$, medida como a quantidade total de publicações em qualis A1 com a participação de alunos, tem uma relação positiva e pouco relevante (ou talvez nem possuir, pelo fato do intervalo de confiança incluir o 0) com o erro b = [-0.01; 0.02], IC com 95%
-
-* A variável $intel$, medida como a porcetagem de docentes colaboradores, pode possuir uma  relação negativa e pouco relevante (ou talvez nem possuir, pelo fato do intervalo de confiança incluir o 0) com o erro b = [-0.07; 0.05], IC com 95%. 
-
-* A variável $int_corr$, medida como a quantidade total de publicações em qualis A1 com a participação de alunos, tem uma relação positiva e pouco relevante (ou talvez nem possuir, pelo fato do intervalo de confiança incluir o 0) com o erro b = [-0.01; 0.02], IC com 95%
-
-* A variável $attr$, medida como a porcetagem de docentes colaboradores, pode possuir uma  relação negativa e pouco relevante (ou talvez nem possuir, pelo fato do intervalo de confiança incluir o 0) com o erro b = [-0.07; 0.05], IC com 95%.
-
-<!-- Após análise dos resultados obtidos para os valores das estimativas associadas a cada variável independente, implicam que o aumento de 1 unidade de $prob$ produz uma mudança de 0,78 na produtividade dos programas de pós graduação em Ciência da Computação do Brasil, enquanto que o aumento da variável $periodicosComAlunoA1$ aumenta em 0,006 na produtividade do programa e o aumento do número de $docentesColaboradores$ possui em relação negativa de -0,005 nesta. O modelo só explica aproximadamente 51% da variância do modelo pelo MC Fadden, e consequentemente, é necessaŕio analisar o impacto de outras variáveis para medir a produtividade dos programas. 
-
-Portanto, na prática, é possível observar que os de acordo com os dados disponibilizados pela CAPES, mostram que os programas de pós graduação em Ciência da Computação do Brasil mais conceitualizados aparenta ser um fator de bastante influência na produtividade dos programas, enquanto periódicos com qualis A1 com a participação de alunos também aparentam possuir impacto positivo (caso exista), porém menor que o impacto do nível de conceito do curso de pós graduação. E por fim, a participação de docentes colaboradores na pesquisa provavelmente influencia bem menos (caso influencie) na produtividade os programas. -->
-
-
-<!-- A variável `like` possui um efeito positivo e relevante sobre a probabilidade de dar match entre dois participantes. As variáveis `atrr` e `prob` também possuem efeito positivo, mas não tão relevante quanto a variável `like`. Já a variável `intel` possui um efeito pequeno e negativo e, por fim, a variável `int_corr` aparenta ter um efeito muito pequeno e positivo, porém não se pode confirmar ou descartar um efeito importante sobre esta última. -->
-
-    Portanto, na prática, é possível observar que os de acordo com os dados coletados e disponibilizados por professores da Columbia Business School gerados pelo experimento envolvendo 310 jovens americanos, apontam que dentre as variáveis as variáveis `prob` (a probabiliade p1 acha que p2 tem de querer se encontrar novamente), `int_corr` (a correlação entre os interesses de p1 e p2), `like` (no geral, quanto p1 gostou de p2), `intel` (quão inteligente p1 achou p2), `attr` (quão atraente p1 achou p2): a variável `like` aparenta ser o quesito mais relevante entre candidatos, ou seja, o que produz mais efeito sobre a chance de p1 decidir se encontrar com p2 novamente (match). Enquanto que as variáveis `atrr` e `prob` têm um pequeno efeito positivo e a variável `intel` possui um efeito pequeno e negativo. Já em relação a variável `int_corr` (a correlação entre os interesses de p1 e p2) aparenta ter um efeito muito pequeno e positivo, porém não se pode confirmar ou descartar um efeito importante sobre esta última.
+  Portanto, na prática, é possível observar que os de acordo com os dados coletados e disponibilizados por professores da Columbia Business School gerados pelo experimento envolvendo 310 jovens americanos, apontam que dentre as variáveis as variáveis `prob` (a probabiliade p1 acha que p2 tem de querer se encontrar novamente), `int_corr` (a correlação entre os interesses de p1 e p2), `like` (no geral, quanto p1 gostou de p2), `intel` (quão inteligente p1 achou p2), `attr` (quão atraente p1 achou p2): a variável `like` aparenta ser o quesito mais relevante entre candidatos, ou seja, o que produz mais efeito sobre o odds de p1 dar match entre p1 e p2. Enquanto que as variáveis `atrr` e `prob` têm um pequeno efeito positivo e a variável `intel` possui um efeito pequeno e negativo. Já em relação a variável `int_corr` (a correlação entre os interesses de p1 e p2) aparenta ter um efeito muito pequeno e positivo, porém não se pode confirmar ou descartar um efeito importante sobre esta última.
 
 
-# Dúvidas:
-## Qual a diferença entre as tabelas com e sem exponentiate?
-## A interpretação da frase está correta?
-## O modelo deve ser reescrito no formato de expoente?
 
