@@ -90,6 +90,32 @@ dados %>%
   labs(x= "Quão atraente p1 achou p2 (attr)",
        y = "Quantidade")
 ``` 
+```{r}
+dados %>%
+  #na.omit(samerace) %>%
+  ggplot(aes(x = prob)) +
+  geom_histogram(color = "black",
+                 fill = "red",
+                 breaks=seq(0, 10, by = 1)) +
+  scale_x_continuous(breaks=seq(0, 10, by = 1)) +
+  scale_y_continuous(breaks=seq(0, 10000, by = 100)) +
+  labs(x= "Quão atraente p1 achou p2 (prob)",
+       y = "Quantidade")
+``` 
+
+```{r}
+dados %>%
+  #na.omit(prob) %>%
+  ggplot(aes(x = int_corr)) +
+  geom_histogram(color = "black",
+                 fill = "yellow",
+                 breaks=seq(0, 10, by = 1)) +
+  scale_x_continuous(breaks=seq(0, 10, by = 1)) +
+  scale_y_continuous(breaks=seq(0, 10000, by = 100)) +
+  labs(x= "Probabilidade de um novo encontro (int_corr)",
+       y = "Quantidade")
+``` 
+
 
 ```{r}
 dados  %>%
@@ -137,24 +163,36 @@ pR2(bm)
 Com 95% de confiança.
 
 ```{r}
-tidy(bm, conf.int = TRUE, conf.level = 0.95) %>%
+tidy(bm, conf.int = TRUE, conf.level = 0.95, exponentiate = TRUE) %>%
   filter(term != "(Intercept)") %>%
   ggplot(aes(term, estimate, ymin = conf.low, ymax = conf.high)) +
   geom_bar(stat = "identity", position = position_dodge(0.8), fill="#00b894", alpha=0.5, width=.7) + 
   geom_errorbar(size = 0.8, width= 0.2) +
   geom_point(color = "red", size = 2) +
-  geom_hline(yintercept = 0, colour = "darkred") +
+  geom_hline(yintercept = 1, colour = "darkred") +
   labs(x = "Variáveis Independentes",
        title = "Intervalos - regressão logística",
-       y = expression("Coeficientes"))
+       y = expression("Coeficientes estimados"))
 ``` 
+
+A variável dependente no modelo é $p(x)/(1-p(x))$. Caso queiramos observar o efeito de $x$ em $p(x)$, isso é menos óbvio porque a relação entre $x$ e $p(x)$ é não linear: o efeito depende dos valores de $x$. A forma de fazer: 
+
+
+```{r}
+teste = data.frame(intel = 1:5)
+
+bm %>% 
+  augment(newdata = teste, 
+          type.predict = "response")
+
+```
 
 # Que fatores nos dados têm efeito relevante na chance do casal ter um match? Descreva se os efeitos são positivos ou negativos e sua magnitude. 
 
 
 ### Conclusão
 
-Na amostra de dados analisada foi utilizada regressão múltipla logistica foi utilizada para analisar se a relação entre as variáveis `prob` (a probabiliade p1 acha que p2 tem de querer se encontrar novamente), `int_corr` (a correlação entre os interesses de p1 e p2), `like` (no geral, quanto p1 gostou de p2), `intel` (quão inteligente p1 achou p2), `attr` (quão atraente p1 achou p2) possuem uma associação com a a probabilidade de haver match entre dois participabntes do encontro. 
+    Na amostra de dados analisada foi utilizada regressão múltipla logística foi utilizada para analisar se a relação entre as variáveis `prob` (a probabiliade p1 acha que p2 tem de querer se encontrar novamente), `int_corr` (a correlação entre os interesses de p1 e p2), `like` (no geral, quanto p1 gostou de p2), `intel` (quão inteligente p1 achou p2), `attr` (quão atraente p1 achou p2) possuem uma associação com a a probabilidade de haver match entre dois participantes do encontro. 
 
 Os resultados da regressão indicam que um modelo com os 5 preditores no formato $log(\frac{p(y)}{1-p(y)}) = -0,66 + 0,78*prob + 0.006*int_corr + 0.005*like + 0.006*intel + 0.005*attr$ explicam 51,55% da variância da variável de resposta (R2 = 0.5155). 
 
@@ -172,9 +210,15 @@ Os resultados da regressão indicam que um modelo com os 5 preditores no formato
 
 * A variável $attr$, medida como a porcetagem de docentes colaboradores, pode possuir uma  relação negativa e pouco relevante (ou talvez nem possuir, pelo fato do intervalo de confiança incluir o 0) com o erro b = [-0.07; 0.05], IC com 95%.
 
-Após análise dos resultados obtidos para os valores das estimativas associadas a cada variável independente, implicam que o aumento de 1 unidade de $prob$ produz uma mudança de 0,78 na produtividade dos programas de pós graduação em Ciência da Computação do Brasil, enquanto que o aumento da variável $periodicosComAlunoA1$ aumenta em 0,006 na produtividade do programa e o aumento do número de $docentesColaboradores$ possui em relação negativa de -0,005 nesta. O modelo só explica aproximadamente 51% da variância do modelo pelo MC Fadden, e consequentemente, é necessaŕio analisar o impacto de outras variáveis para medir a produtividade dos programas.
+<!-- Após análise dos resultados obtidos para os valores das estimativas associadas a cada variável independente, implicam que o aumento de 1 unidade de $prob$ produz uma mudança de 0,78 na produtividade dos programas de pós graduação em Ciência da Computação do Brasil, enquanto que o aumento da variável $periodicosComAlunoA1$ aumenta em 0,006 na produtividade do programa e o aumento do número de $docentesColaboradores$ possui em relação negativa de -0,005 nesta. O modelo só explica aproximadamente 51% da variância do modelo pelo MC Fadden, e consequentemente, é necessaŕio analisar o impacto de outras variáveis para medir a produtividade dos programas. 
 
-Portanto, na prática, é possível observar que os de acordo com os dados disponibilizados pela CAPES, mostram que os programas de pós graduação em Ciência da Computação do Brasil mais conceitualizados aparenta ser um fator de bastante influência na produtividade dos programas, enquanto periódicos com qualis A1 com a participação de alunos também aparentam possuir impacto positivo (caso exista), porém menor que o impacto do nível de conceito do curso de pós graduação. E por fim, a participação de docentes colaboradores na pesquisa provavelmente influencia bem menos (caso influencie) na produtividade os programas.  
+Portanto, na prática, é possível observar que os de acordo com os dados disponibilizados pela CAPES, mostram que os programas de pós graduação em Ciência da Computação do Brasil mais conceitualizados aparenta ser um fator de bastante influência na produtividade dos programas, enquanto periódicos com qualis A1 com a participação de alunos também aparentam possuir impacto positivo (caso exista), porém menor que o impacto do nível de conceito do curso de pós graduação. E por fim, a participação de docentes colaboradores na pesquisa provavelmente influencia bem menos (caso influencie) na produtividade os programas. -->
+
+
+<!-- A variável `like` possui um efeito positivo e relevante sobre a probabilidade de dar match entre dois participantes. As variáveis `atrr` e `prob` também possuem efeito positivo, mas não tão relevante quanto a variável `like`. Já a variável `intel` possui um efeito pequeno e negativo e, por fim, a variável `int_corr` aparenta ter um efeito muito pequeno e positivo, porém não se pode confirmar ou descartar um efeito importante sobre esta última. -->
+
+    Portanto, na prática, é possível observar que os de acordo com os dados coletados e disponibilizados por professores da Columbia Business School gerados pelo experimento envolvendo 310 jovens americanos, apontam que dentre as variáveis as variáveis `prob` (a probabiliade p1 acha que p2 tem de querer se encontrar novamente), `int_corr` (a correlação entre os interesses de p1 e p2), `like` (no geral, quanto p1 gostou de p2), `intel` (quão inteligente p1 achou p2), `attr` (quão atraente p1 achou p2): a variável `like` aparenta ser o quesito mais relevante entre candidatos, ou seja, o que produz mais efeito sobre a chance de p1 decidir se encontrar com p2 novamente (match). Enquanto que as variáveis `atrr` e `prob` têm um pequeno efeito positivo e a variável `intel` possui um efeito pequeno e negativo. Já em relação a variável `int_corr` (a correlação entre os interesses de p1 e p2) aparenta ter um efeito muito pequeno e positivo, porém não se pode confirmar ou descartar um efeito importante sobre esta última.
+
 
 # Dúvidas:
 ## Qual a diferença entre as tabelas com e sem exponentiate?
